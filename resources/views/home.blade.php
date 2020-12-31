@@ -26,10 +26,9 @@
                         <label for="start">Start date:</label>
                         <input type="date" id="start" name="check-start" min="2020-01-01" max="2021-12-31"
                             placeholder="dd-mm-yyyy" value="2020-01-01">
-
                         <label for="start">End date:</label>
                         <input type="date" id="start" name="check-end" min="2020-01-01" max="2021-12-31"
-                            placeholder="dd-mm-yyyy" value="2020-01-04">
+                            placeholder="dd-mm-yyyy" value="2020-01-01">
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>

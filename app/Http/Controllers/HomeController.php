@@ -42,7 +42,7 @@ class HomeController extends Controller
 
         foreach ($workers as $worker) {
 
-            $worker_data = self::workerCalculations($worker);
+            $worker_data = self::workerCalculations($worker, $request);
 
             array_push($workers_data, $worker_data);
         }
@@ -70,7 +70,7 @@ class HomeController extends Controller
     }
 
 
-    public static function workerCalculations($worker)
+    public static function workerCalculations($worker, $request)
     {
         $worker_data = array(
             'id' => $worker->id,
@@ -82,7 +82,7 @@ class HomeController extends Controller
         );
 
         foreach ($worker->shifts as $shift) {
-            if (isset($_GET) && !empty($_GET) && $shift->date >= $_GET['check-start'] && $shift->date <= $_GET['check-end']) {
+            if (!empty($request) && $shift->date >= $request->input('check-start') && $shift->date <= $request->input('check-end')) {
                 $worker_data['shifts']++;
                 $worker_data['productivity'] += self::calculateShiftProductivity($shift);
             }
