@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Shift;
 use Illuminate\Http\Request;
 use App\Models\Worker;
+use Symfony\Component\Console\Input\Input;
 
 class HomeController extends Controller
 {
@@ -25,15 +26,17 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
         $workers = Worker::all();
+        $shifts = [];
 
-        if(isset($_GET) && !empty($_GET)){
-            $shifts = Shift::whereBetween('date',[$_GET['check-start'],$_GET['check-end']])->get();
-        } else {
-            $shifts = [];
-        }
+        $date_start = $request->input('check-start');
+        $date_end = $request->input('check-end');
+
+        if(!empty($request)){
+            $shifts = Shift::whereBetween('date',[$date_start,$date_end])->get();
+        } 
 
         return view('home')->with(compact('shifts','workers'));
     }
@@ -42,14 +45,12 @@ class HomeController extends Controller
 
     static function calculateShiftProductivity($shift)
     {
-        // dd($shift);
         $product = Product::find($shift->product_id);
         $workCenter = WorkCenter::find($shift->work_center_id);
         $pieces = $shift->pieces;
 
         $productivity = 0;
 
-        // dd($workCenter);
         if($product->pieces_per_hour == 0){
             $productivity = $pieces / ($workCenter->pieces_per_hour * 8);
         } else {
@@ -58,6 +59,7 @@ class HomeController extends Controller
 
         return $productivity;
     }
+
 
     public static function workerCalculations($worker)
     {
@@ -78,6 +80,7 @@ class HomeController extends Controller
             $data['productivity'] = round($data['productivity'] / $data['sum'],2);
         }
 
+        //dd($data);
         return $data;
     }
 
