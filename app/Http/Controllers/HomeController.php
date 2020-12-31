@@ -34,11 +34,20 @@ class HomeController extends Controller
         $date_start = $request->input('check-start');
         $date_end = $request->input('check-end');
 
-        if(!empty($request)){
-            $shifts = Shift::whereBetween('date',[$date_start,$date_end])->get();
-        } 
+        if (!empty($request)) {
+            $shifts = Shift::whereBetween('date', [$date_start, $date_end])->get();
+        }
 
-        return view('home')->with(compact('shifts','workers'));
+        $workers_data = array();
+
+        foreach ($workers as $worker) {
+
+            $worker_data = self::workerCalculations($worker);
+
+            array_push($workers_data, $worker_data);
+        }
+
+        return view('home')->with(compact('shifts', 'workers_data'));
     }
 
 
@@ -51,7 +60,7 @@ class HomeController extends Controller
 
         $productivity = 0;
 
-        if($product->pieces_per_hour == 0){
+        if ($product->pieces_per_hour == 0) {
             $productivity = $pieces / ($workCenter->pieces_per_hour * 8);
         } else {
             $productivity = $pieces / ($product->pieces_per_hour * 8);
@@ -63,25 +72,26 @@ class HomeController extends Controller
 
     public static function workerCalculations($worker)
     {
-        $data = array(
-            'sum' => 0,
+        $worker_data = array(
+            'id' => $worker->id,
+            'name' => $worker->name,
+            'surname' => $worker->surname,
+            'shifts' => 0,
             'productivity' => 0,
             'prod%' => 0,
         );
 
-        foreach($worker->shifts as $shift){
-            if(isset($_GET) && !empty($_GET) && $shift->date >= $_GET['check-start'] && $shift->date <= $_GET['check-end']){
-                $data['sum']++;
-                $data['productivity'] += self::calculateShiftProductivity($shift);
+        foreach ($worker->shifts as $shift) {
+            if (isset($_GET) && !empty($_GET) && $shift->date >= $_GET['check-start'] && $shift->date <= $_GET['check-end']) {
+                $worker_data['shifts']++;
+                $worker_data['productivity'] += self::calculateShiftProductivity($shift);
             }
         }
-        if($data['sum'] != 0) {
-            $data['prod%'] = round($data['productivity'] / $data['sum'] * 100,2);
-            $data['productivity'] = round($data['productivity'] / $data['sum'],2);
+        if ($worker_data['shifts'] != 0) {
+            $worker_data['prod%'] = round($worker_data['productivity'] / $worker_data['shifts'] * 100, 2);
+            $worker_data['productivity'] = round($worker_data['productivity'] / $worker_data['shifts'], 2);
         }
 
-        //dd($data);
-        return $data;
+        return $worker_data;
     }
-
 }
