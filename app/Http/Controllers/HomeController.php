@@ -81,10 +81,15 @@ class HomeController extends Controller
             'prod%' => 0,
         );
 
+        $date_start = $request->input('check-start');
+        $date_end = $request->input('check-end');
+
         foreach ($worker->shifts as $shift) {
-            if (!empty($request) && $shift->date >= $request->input('check-start') && $shift->date <= $request->input('check-end')) {
-                $worker_data['shifts']++;
-                $worker_data['productivity'] += self::calculateShiftProductivity($shift);
+            if ($date_start != '' && $date_end != '') {
+                if ($shift->date >= $date_start && $shift->date <= $date_end) {
+                    $worker_data['shifts']++;
+                    $worker_data['productivity'] += self::calculateShiftProductivity($shift);
+                }
             }
         }
         if ($worker_data['shifts'] != 0) {

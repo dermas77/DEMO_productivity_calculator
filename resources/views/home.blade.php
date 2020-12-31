@@ -5,7 +5,12 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">{{ __('Shifts Chosen  ') }} @if (isset($_GET['check-start']) == 1){{$_GET['check-start']}} @else No start date @endif - @if (isset($_GET['check-end']) == 1){{$_GET['check-end']}} @else No end date @endif</div>
+                    <div class="card-header">{{ __('Shifts from:  ') }}
+                        @if (isset($_GET['check-start']) == 0 || isset($_GET['check-end']) == 0 || $_GET['check-start'] == '' || $_GET['check-end'] == '')
+                            <i class="alert alert-danger">Please choose both dates</i>
+                        @else {{ $_GET['check-start'] }} - {{ $_GET['check-end'] }}
+                        @endif
+                    </div>
                     <div class="card-body">
                         @foreach ($shifts as $shift)
                             <li style="list-style: none">Date: <i>{{ $shift->date }}</i> </li>
